@@ -7,21 +7,17 @@ body {
   text-align: left;
 }
 /* Giving our navbar some padding and a background color */
-.navbar {
-  padding-bottom: 0px;
-  /* margin-bottom: 20px; */
-  background: #0d48b6;
-}
-h1 {
+
+/* h1 {
   font-size: 50px;
   text-align: right;
   font-display: bold;
   font-family: Arial;
   color:#0d48b6;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-}
+} */
 /* Making our navbar li's inline-block elements this makes it so we can have multiple on the same line. Floats could have been used too */
-.navbar a {
+/* .navbar a {
   margin: auto;
   float: left; 
   cursor: pointer;
@@ -154,53 +150,73 @@ font: bold;
   padding: 80px;
   margin: auto;
   float: left;
-} 
+}  */
 /* Column container */
-.row5 {  
+/* .row5 {  
   
   padding-top: 0px;
 }
 .row2 {  
   display: flex;
   flex-wrap: wrap; 
-}
+} */
 /* Create two unequal columns that sits next to each other */
 /* Sidebar/left column */
-.side {
+/* .side {
   flex: 30%;
   -ms-flex: 30%;
   background-color: rgb(224, 166, 224);
   padding: 20px;
   border-block-end: #0d48b6
-}
+} */
 /* Main column */
-.main {   
+/* .main {   
   flex: 70%;
   -ms-flex: 70%;
   background-color:wheat;
   padding: 20px;
-}
+} */
  
+html,
+body,
  #map{
-  height: 70rem;
+  height: 100%;
   margin: 0px;
   padding: 0px;
 }
 
-.legend {
+.popupImage {
+  width: 200px;
+  height: 200px;
+}
+
+.Building.Use {
+  background-color:#fff;
+  padding: 10px;
+  line-height: 18px;
+  color: #555;
+  border-radius: 5px;
+}
+
+/* .legend {
   padding: 10px;
   line-height: 18px;
   color: #555;
   background-color: #fff;
   border-radius: 5px;
-}
+} */
 
-.legend i {
+.Building.Use i {
   float: left;
   width: 18px;
   height: 18px;
-  margin-right: 8px;
+  margin-right: 2px;
   opacity: 0.7;
 }
 
+.label {
+  padding: 0px;
+  line-height: 12px;
+  text-align: center;
+}
 

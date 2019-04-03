@@ -18,152 +18,147 @@ var crs = new L.Proj.CRS("EPSG:3857","+proj=merc +a=6378137 +b=6378137 +lat_ts=0
     ]
 });
 
-// add the basemaps
-// var grayScaleMap = L.tileLayer("https://gis.princeton.edu/arcgis/rest/services/Basemap/Basemap/MapServer/tile/{z}/{x}/{y}.png", {
-//     attribution: "Map data &copy; <a href='https://www.openstreetmap.org/'>OpenStreetMap</a> contributors, <a href='https://creativecommons.org/licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='https://www.mapbox.com/'>Mapbox</a>"
-//     // test: {z}-5
-//     // maxZoom: 15,
-//     // id: "Basemap",
-//     // minZoom: 4
-//     // accessToken: API_KEY
-// });
-
-// var imageMap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-//   attribution: "Map data &copy; <a href='https://www.openstreetmap.org/'>OpenStreetMap</a> contributors, <a href='https://creativecommons.org/licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='https://www.mapbox.com/'>Mapbox</a>",
-//   maxZoom: 17,
-//   id: "mapbox.streets-satellite",
-//   minZoom: 4,
-//   accessToken: API_KEY
-// });
-
 //create the map object 
 var map = L.map("map", {
     crs: crs
-    // layers: [imageMap]
 }).setView([40.339, -74.656], 3);
 
-// Add the tile layer to the map.
-// grayScaleMap.addTo(map);
-
-// create layer for the NBA team locations
-// var TeamLoc = new L.LayerGroup();
-
-// create the basemap group
-// var baseMaps = {
-//     imageMap: imageMap
-// };
-
-L.esri.tiledMapLayer({
-    url: 'https://gis.princeton.edu/arcgis/rest/services/Basemap/Basemap/MapServer',
+// bring in the base map.
+const BasemapBasic = L.esri.tiledMapLayer({
+    url: 'https://gis.princeton.edu/arcgis/rest/services/Basemap/Basemap_NoAnno/MapServer',
     // useCors: false
 }).addTo(map);
 
-// create overlays (for now, just the generic team location)
-// var mapLayers = {
-//     "Arena Size": TeamLoc
-// };
+//Bring in the feature layers of interest.
 
-// add control to enable turning on and off layers
-// L.control.layers(baseMaps).addTo(map);
 
-const BlueLightPhones = L.esri.featureLayer({url: 'https://gis.princeton.edu/arcgis/rest/services/Mapping/BlueLightPhones/FeatureServer/0'}).addTo(map);
-const PUBuildings = L.esri.featureLayer({url: 'https://gis.princeton.edu/arcgis/rest/services/Archibus/EmergencyResponse_feature/FeatureServer/2'}).addTo(map);
+const BlueLightPhones = L.esri.featureLayer({url: 'https://gis.princeton.edu/arcgis/rest/services/Mapping/BlueLightPhones/FeatureServer/0',
+pointToLayer: function (geojson, latlng) {
+    return L.circleMarker(latlng);
+}}).addTo(map);
 
+const PUBuildings = L.esri.featureLayer({url: 'https://gis.princeton.edu/arcgis/rest/services/Archibus/EmergencyResponse_feature/FeatureServer/2',
+    style: function (feature) {
+        if (feature.properties.ARCH_BL_USE1 === 'ACAD'){
+            return {color: 'rgb(227, 227, 178)', weight: 0.5, fillOpacity: '1.0' };
+        } else if (feature.properties.ARCH_BL_USE1 === 'ADM'){
+            return {color: 'rgb(139, 196, 224)', weight: 0.5, fillOpacity: '1.0' };
+        } else if (feature.properties.ARCH_BL_USE1 === 'ATHL'){
+            return {color: 'rgb(235, 189, 189)', weight: 0.5, fillOpacity: '1.0' };
+        } else if (feature.properties.ARCH_BL_USE1 === 'DORM'){
+            return {color: 'rgb(244, 252, 179)', weight: 0.5, fillOpacity: '1.0' };
+        } else if (feature.properties.ARCH_BL_USE1 === 'GRAD'){
+            return {color: 'rgb(102, 219, 191)', weight: 0.5, fillOpacity: '1.0' };
+        } else if (feature.properties.ARCH_BL_USE1 === 'HSG'){
+            return {color: 'rgb(158, 95, 157)', weight: 0.5, fillOpacity: '1.0' };
+        } else if (feature.properties.ARCH_BL_USE1 === 'CHSG'){
+            return {color: 'rgb(255, 166, 255)', weight: 0.5, fillOpacity: '1.0' };
+        } else if (feature.properties.ARCH_BL_USE1 === 'RE'){
+            return {color: 'rgb(0, 127, 229)', weight: 0.5, fillOpacity: '1.0' };
+        } else if (feature.properties.ARCH_BL_USE1 === 'RECO'){
+            return {color: 'rgb(173, 82, 54)', weight: 0.5, fillOpacity: '1.0' };
+        } else {
+            return {color: 'rgb(156, 156, 156)', weight: 0.5, fillOpacity: '1.0' };
+        }
+    }
+}).addTo(map);
+
+// const TestBuildings = L.esri.featureLayer({url: 'https://gis.princeton.edu/arcgis/rest/services/Archibus/EmergencyResponse_feature/FeatureServer/2',
+// simplyFactor: 1
+// }).addTo(map);
+
+//pop-ups for buildings...
 PUBuildings.bindPopup(function(MapBuildings) {
-    return L.Util.template('<h3>{NAME}</h3><hr /><p>This Building has an ID of {BL_ID} and Building Use of {ARCH_BL_USE1}.<hr /><p>"<img src= https://pcs.princeton.edu/blgpix/{BL_ID}.jpg>"', MapBuildings.feature.properties);
+    return L.Util.template("<h3>"+MapBuildings.feature.properties.NAME+"</h3><hr /><p>"
+    +"This Building has an ID of "
+    +MapBuildings.feature.properties.BL_ID+
+    " and Building Use of "+MapBuildings.feature.properties.ARCH_BL_USE1+
+    ".<hr /><p>"+
+    "<img src='https://pcs.princeton.edu/blgpix/"+MapBuildings.feature.properties.BL_ID+".jpg'" + " class=popupImage "+ ">");
 });
 
-// https://pcs.princeton.edu/blgpix/
-// "<img src='" + picURL2 + "'" + "class=popupImage" + "/>"
+// Add labeling for buildings
+// var labels = {};
 
-// // URL for api from flask
-// var location_path = "/heatmap_data2";
-// console.log(location_path);
-// d3.json(location_path, function(response) {
-//     // var TeamVenue = [];
-//     function styleInfo(features) {
-//         return {
-//             opacity:1,
-//             fillOpacity: 0.75,
-//             fillColor: getColor(features.properties.POPULATION),
-//             radius: getRadius(features.properties.POPULATION),
-//             stroke: true,
-//             weight: 0.2
-//         };
-//     }
-
-//     function getRadius(population) {
-//         switch (true) {
-//         case population > 20000:
-//             return 25;
-//         case population > 19000:
-//             return 20;
-//         case population > 18000:
-//             return 15;
-//         default:
-//             return 12;
-//         }
-//     }
-
-//     function getColor(pop) {
-//         switch (true) {
-//         case pop > 20000:
-//             return "#ea2c2c";
-//         case pop > 19000:
-//             return "#ea822c";
-//         case pop > 18000:
-//             return "#ee9c00";
-//         default:
-//             return "#98ee00";
-//         }
-//     }
-
-
-//     L.geoJson(response, {
-//         pointToLayer: function(features, latlng) {
-//             return L.circleMarker(latlng);
-//         },
-
-//         style: styleInfo,
-
-//         onEachFeature: function(features, layer) {
-//             layer.bindPopup("Team: " + features.properties.TEAM + "<br>Arena: " + features.properties.NAME + "<br>Arena Size: " +features.properties.POPULATION);
-
-//         }
-//     }).addTo(TeamLoc);
-
-//     TeamLoc.addTo(map);
-
-//     // create the legend control
-//     var legend = L.control({
-//         position: "bottomright"
-//     });
-
-//     // details for the legend
-//     legend.onAdd = function() {
-//         var div = L.DomUtil.create("div", "NBA legend");
-
-//         var grades = [0, 18000, 19000, 20000];
-//         var colors = [
-//             "#98ee00",
-//             "#ee9c00",
-//             "#ea822c",
-//             "#ea2c2c"
-//         ];
-//         labels = [];
-
-//         // add title of the legend
-//         div.innerHTML += '<b>Arena Size</b><br>'
-
-//         // Loop through legend items and generate label with the associated color
-//         for (var i = 0; i < grades.length; i++) {
-//             div.innerHTML += "<i style='background: " + colors[i] + "'></i> " +
-//               grades[i] + (grades[i + 1] ? "&ndash;" + grades[i + 1] + "  <br>" : "+");
-//           }
-//           return div;
-//     };
-
-//     // add legend to the map
-//     legend.addTo(map);
-
+// PUBuildings.on('createfeature', function(e){
+//     var id = e.feature.id;
+//     var feature = PUBuildings.getFeature(id);
+//     var center = feature.getBounds().getCenter();
+//     var label = L.marker(center, {
+//         icon: L.divIcon({
+//             iconSize: null,
+//             className: 'label',
+//             html: '<div>' + e.feature.properties.NAME + '</div>'
+//         })
+//     }).addTo(map);
+//     labels[id] = label;
 // });
+
+// // turn on labeling when layer is turned on.
+// PUBuildings.on('addfeature', function(e){
+//     var label = labels[e.feature.id];
+//     if(label){
+//       label.addTo(map);
+//     }
+// });
+
+// // turn off labeling when layer is turned off.
+// PUBuildings.on('removefeature', function(e){
+//     var label = labels[e.feature.id];
+//     if(label){
+//       map.removeLayer(label);
+//     }
+// });
+
+// create the basemap group
+var baseMaps = {
+    "Basemap": BasemapBasic
+};
+
+var mapLayers = {
+    "Blue Light Phones": BlueLightPhones,
+    "Princeton Buildings": PUBuildings
+};
+
+L.control.layers(baseMaps, mapLayers).addTo(map);
+
+
+    // create the legend control
+    var legend = L.control({
+        position: "bottomright"
+    });
+
+    // details for the legend
+    legend.onAdd = function() {
+        var div = L.DomUtil.create("div", "Building Use");
+
+        var grades = [0, 18000, 19000, 20000];
+        var colors = [
+            'rgb(227, 227, 178)',
+            "rgb(139, 196, 224)",
+            "rgb(235, 189, 189)",
+            "rgb(244, 252, 179)",
+            "rgb(102, 219, 191)",
+            "rgb(158, 95, 157)",
+            "rgb(255, 166, 255)",
+            "rgb(0, 127, 229)",
+            "rgb(173, 82, 54)"
+        ];
+        labels = ['Academic', 'ADM', 'ATHL', 'DORM', 'GRAD', 'HSG', 'CHSG', 'RE', 'RECO'];
+
+        // add title of the legend
+        div.innerHTML += '<b>Building Primary Use</b><br>'
+
+        // Loop through legend items and generate label with the associated color
+        for (var i = 0; i < labels.length; i++) {
+            div.innerHTML += "<i style='background: " + colors[i] + "'></i> " +
+              labels[i] + "<br>";
+              console.log("color: " + colors[i]);
+          }
+          return div;
+    };
+
+    // add legend to the map
+    legend.addTo(map);
+
+
