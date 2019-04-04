@@ -1,8 +1,9 @@
-// Javascript file for the mapping page - heatmap.html
+// Javascript file for basic mapping at Princeton
 
 // load the API key for mapbox:
 var apiKey = API_KEY;
 
+// use CRS due to our API using non-standard cache scales
 var crs = new L.Proj.CRS("EPSG:3857","+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs", {
     origin: [-20037700, 30241100],
     resolutions: [
@@ -144,7 +145,7 @@ L.control.layers(baseMaps, mapLayers).addTo(map);
             "rgb(0, 127, 229)",
             "rgb(173, 82, 54)"
         ];
-        labels = ['Academic', 'ADM', 'ATHL', 'DORM', 'GRAD', 'HSG', 'CHSG', 'RE', 'RECO'];
+        labels = ['Academic', 'Administrative', 'Athletic', 'Dormitory', 'Grad Housing', 'Housing', 'CHSG', 'Real Estate', 'Real Estate Commercial'];
 
         // add title of the legend
         div.innerHTML += '<b>Building Primary Use</b><br>'
